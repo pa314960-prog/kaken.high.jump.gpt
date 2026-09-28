@@ -26,6 +26,4 @@ npm run dev
 
 `npm run build` で型チェックと本番ビルドを実行します。ビルド結果は `dist/` です。
 
-## 公開
-
-`main` ブランチへの push で GitHub Pages 用のワークフローが実行されます。リポジトリの Settings → Pages で Source を **GitHub Actions** に設定してください。
+`main` ブランチへの push で GitHub Actions がビルドを確認します。Web 公開はまだ設定していません。
