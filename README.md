@@ -26,4 +26,6 @@ npm run dev
 
 `npm run build` で型チェックと本番ビルドを実行します。ビルド結果は `dist/` です。
 
-`main` ブランチへの push で GitHub Actions がビルドを確認します。Web 公開はまだ設定していません。
+`main` ブランチへの push で GitHub Actions がビルドし、GitHub Pages に公開します。
+
+公開URL: https://pa314960-prog.github.io/kaken.high.jump.gpt/
