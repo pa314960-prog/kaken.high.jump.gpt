@@ -1,0 +1,51 @@
+@media (min-width: 901px) and (max-height: 820px) {
+  .score-panel {
+    padding: 14px 20px;
+    gap: 8px;
+  }
+
+  .score-card {
+    padding: 12px 18px 11px;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+  }
+
+  .score-card strong {
+    font-size: 78px;
+  }
+
+  .score-card p {
+    margin-top: 3px;
+    padding-top: 7px;
+    font-size: 11px;
+  }
+
+  .best-card {
+    height: 46px;
+  }
+
+  .ranking-card {
+    padding: 9px 13px;
+  }
+
+  .ranking-card header {
+    margin-bottom: 5px;
+  }
+
+  .ranking-card li {
+    padding: 4px 0;
+  }
+
+  .timer-ring {
+    width: 64px;
+    height: 64px;
+    padding-top: 12px;
+  }
+
+  .timer-ring strong {
+    font-size: 32px;
+  }
+
+  .start-button {
+    height: 52px;
+  }
+}
