@@ -43,17 +43,13 @@ body.portrait-mode { background: #020410; }
 .portrait h1 { margin: 8px 0 6px; font-size: clamp(24px, 4vh, 38px); }
 .portrait .title-block p { font-size: 11px; }
 
-.portrait .jump-zone { width: 62%; left: 54%; height: 6%; min-height: 36px; bottom: 2.5%; }
-.portrait .jump-zone strong { font-size: 13px; }
-.portrait .footprints i { width: 8px; height: 13px; }
-
 .portrait .countdown b { font-size: clamp(120px, 22vh, 220px); }
 .portrait .result-score strong { font-size: clamp(100px, 16vh, 180px); }
 .portrait .result-score small { font-size: 28px; }
 .portrait .result p { font-size: 17px; }
 .portrait .result-label { font-size: 14px; }
 
-.portrait .camera-preview { right: 8px; bottom: 8px; width: 92px; height: 62px; border-radius: 10px; }
+.portrait .camera-preview { right: 8px; bottom: calc(10% + 8px); width: 92px; height: 62px; border-radius: 10px; }
 .portrait .camera-label { padding: 3px 6px; font-size: 7px; }
 .portrait .camera-empty { font-size: 8px; }
 

@@ -44,7 +44,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <div class="floor-line"></div>
         </div>
         <div class="title-block"><span class="challenge-label">JUMP &amp; REACH</span><h1 id="main-title">手を上にのばそう</h1><p id="main-message">立つ位置を合わせたら、スタートを押してね</p></div>
-        <div class="jump-zone"><span class="footprints"><i></i><i></i></span><strong>ここに立つ</strong></div>
         <div class="countdown" id="countdown" aria-hidden="true"><b id="countdown-number">3</b></div>
         <div class="result" id="result" aria-live="polite">
           <span class="result-label" id="result-label">RESULT</span>

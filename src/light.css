@@ -55,8 +55,6 @@ body.theme-light .app-shell { background: var(--bg); }
 .theme-light h1 { text-shadow: 0 2px 0 #fff, 0 4px 24px #ffffffcc; }
 .theme-light .title-block p { background: #ffffffd9; color: #4b5578; }
 body.theme-light[data-phase='playing'] h1 { text-shadow: 0 2px 0 #fff; }
-.theme-light .jump-zone { background: radial-gradient(ellipse at center, #ff5a1f22, #ff5a1f06 70%); box-shadow: 0 0 22px #ff5a1f33, inset 0 0 18px #ff5a1f22; }
-
 /* overlays */
 body.theme-light[data-phase='countdown'] .countdown { background: radial-gradient(circle at center, #ffffffdd, #ffffff66 60%); }
 .theme-light .countdown b { text-shadow: 0 10px 40px #ff5a1f55; }
