@@ -49,10 +49,6 @@ button { -webkit-tap-highlight-color: transparent; }
   background: linear-gradient(180deg, #0b1130, #070b1d);
 }
 .top-actions { display: flex; align-items: center; gap: 8px; }
-.system-state { display: flex; align-items: center; gap: 8px; margin-right: 10px; font-size: 12px; color: var(--muted); }
-.system-state b { font-weight: 700; color: var(--ink); }
-.system-state i { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 4px #d4ff3a22, 0 0 10px var(--lime); }
-body[data-phase='playing'] .system-state i { background: var(--coral); box-shadow: 0 0 0 4px #ff4d6d22, 0 0 10px var(--coral); animation: blink 1s infinite; }
 .icon-button {
   border: 1px solid var(--line-2);
   background: #ffffff08;
@@ -351,37 +347,6 @@ body[data-phase='finished'] .title-block, body[data-phase='countdown'] .title-bl
   background: linear-gradient(180deg, #0d1336, #080c22);
   overflow: hidden;
 }
-.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.phase-chip {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid #d4ff3a55;
-  background: #d4ff3a12;
-  color: var(--lime);
-  font: 900 13px var(--num);
-  letter-spacing: .22em;
-}
-body[data-phase='playing'] .phase-chip { background: var(--coral); border-color: var(--coral); color: white; }
-body[data-phase='calibrating'] .phase-chip { color: var(--cyan); border-color: #46e3ff66; background: #46e3ff14; }
-body[data-phase='finished'] .phase-chip { background: var(--gold); border-color: var(--gold); color: var(--bg); }
-
-.timer-card { display: flex; align-items: center; gap: 12px; }
-.timer-card p { margin: 0; font-size: 12px; font-weight: 700; color: var(--muted); text-align: right; }
-.timer-card p b { font: 900 22px var(--num); color: var(--ink); }
-.timer-ring {
-  --progress: 360deg;
-  width: 70px; height: 70px;
-  display: flex; align-items: baseline; justify-content: center; gap: 1px;
-  padding-top: 15px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at center, #0b1032 60%, transparent 61.5%),
-    conic-gradient(var(--lime) var(--progress), #ffffff18 0);
-}
-.timer-ring.hurry { background: radial-gradient(circle at center, #0b1032 60%, transparent 61.5%), conic-gradient(var(--coral) var(--progress), #ffffff18 0); animation: blink .5s infinite alternate; }
-.timer-ring strong { font: 900 36px var(--num); line-height: 1; }
-.timer-ring small { font-size: 10px; color: var(--muted); }
-
 .score-card {
   position: relative;
   padding: 16px 18px 14px;
@@ -541,8 +506,6 @@ body[data-phase='playing'] .start-button:not([hidden]) { display: none; }
   .score-value strong { font-size: 84px; }
   .ranking-card li { padding: 3px 0; }
   .ranking-card li:nth-child(n + 4) { display: none; }
-  .timer-ring { width: 60px; height: 60px; padding-top: 12px; }
-  .timer-ring strong { font-size: 30px; }
   .start-button { height: 54px; }
 }
 
@@ -557,7 +520,6 @@ body[data-phase='playing'] .start-button:not([hidden]) { display: none; }
 @media (max-width: 560px) {
   .app-shell { grid-template-rows: 58px auto; }
   .topbar { padding: 0 12px; }
-  .system-state { display: none; }
   .icon-button { padding: 7px 10px; font-size: 11px; }
   .play-field { height: 600px; }
   .ruler-mark { left: 60px; right: 12px; }

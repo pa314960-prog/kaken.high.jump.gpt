@@ -24,7 +24,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="app-shell">
     <header class="topbar">
       <div class="top-actions">
-        <span class="system-state"><i></i><b id="system-state">準備OK</b></span>
         <button id="settings-button" class="icon-button" type="button">設定</button>
         <button id="theme-button" class="icon-button" type="button" aria-pressed="false">ライト</button>
         <button id="layout-button" class="icon-button" type="button" aria-pressed="false">縦画面</button>
@@ -52,7 +51,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <div class="camera-preview" id="camera-preview"><div class="camera-label"><span>CAMERA</span><b id="camera-state">OFF</b></div><video id="camera-video" autoplay playsinline muted></video><canvas id="pose-canvas"></canvas><div class="camera-empty">カメラ映像</div></div>
       </section>
       <aside class="score-panel">
-        <div class="panel-head"><div class="phase-chip" id="phase-chip">READY</div><section class="timer-card"><p id="jump-count">ジャンプ 0回</p><div class="timer-ring" id="timer-ring"><strong id="timer">${ROUND_SECONDS}</strong><small>秒</small></div></section></div>
         <section class="score-card" id="score-card"><span>今回の記録</span><div class="score-value"><strong id="current-score">---</strong><small>cm</small></div><div class="meter"><i id="score-meter"></i><em id="meter-best"></em></div><p id="score-note">最高到達点を測ります</p></section>
         <section class="ranking-card"><header><span>ランキング</span><small>TOP 5</small></header><ol id="ranking"></ol></section>
         <div class="panel-actions">
@@ -105,9 +103,7 @@ function renderRanking() {
 }
 function setPhase(phase: Phase, title: string, message: string) {
   state.phase = phase;
-  $('#phase-chip').textContent = phase === 'ready' ? 'READY' : phase === 'waiting' ? 'AUTO READY' : phase === 'calibrating' ? 'CALIBRATION' : phase === 'countdown' ? 'GET READY' : phase === 'playing' ? 'JUMP!' : 'FINISH';
   $('#main-title').textContent = title; $('#main-message').textContent = message;
-  $('#system-state').textContent = phase === 'playing' ? '計測中' : phase === 'calibrating' ? '調整中' : phase === 'waiting' ? '自動待機' : '準備OK';
   document.body.dataset.phase = phase;
 }
 function setReachLine(value: number, visible: boolean) {
@@ -123,11 +119,9 @@ function render() {
   state.shownBest = Math.round(state.bestReach);
   $('#score-meter').style.width = heightPercent(state.bestReach);
   $('#peak-line').style.bottom = heightPercent(state.bestReach); $('#peak-line').classList.toggle('visible', state.bestReach > 0 && (state.phase === 'playing' || state.phase === 'finished')); $('#peak-line-value').textContent = String(Math.round(state.bestReach));
-  $('#jump-count').innerHTML = `ジャンプ <b>${state.jumps}</b>回`; setReachLine(displayReach || numeric('#standing-reach', 190), visible);
+  setReachLine(displayReach || numeric('#standing-reach', 190), visible);
   if (state.phase === 'playing') {
     const remaining = Math.max(0, Math.ceil(ROUND_SECONDS - (performance.now() - state.roundStartedAt) / 1000));
-    $('#timer').textContent = String(remaining); $('#timer-ring').style.setProperty('--progress', `${remaining / ROUND_SECONDS * 360}deg`);
-    $('#timer-ring').classList.toggle('hurry', remaining <= 5);
     if (remaining <= 0) finishRound();
   }
 }
@@ -199,7 +193,7 @@ async function cameraLoop() {
   catch (error) { console.error(error); resetAfterError('計測エラー', 'ページを再読み込みして試してください'); }
 }
 function showToast(message: string) { $('#toast').textContent = message; $('#toast').classList.add('show'); window.setTimeout(() => $('#toast').classList.remove('show'), 3500); }
-function resetRound() { state.bestReach = 0; state.shownBest = 0; state.jumps = 0; state.airborne = false; $('#score-note').textContent = '最高到達点を測ります'; $('#timer').textContent = String(ROUND_SECONDS); $('#timer-ring').style.setProperty('--progress', '360deg'); $('#timer-ring').classList.remove('hurry'); }
+function resetRound() { state.bestReach = 0; state.shownBest = 0; state.jumps = 0; state.airborne = false; $('#score-note').textContent = '最高到達点を測ります'; }
 async function startCamera() {
   if (state.stream) return;
   resetRound(); state.liveReach = 0; state.presenceFrames = 0; state.missingFrames = 0; state.awaitingExit = false;
@@ -215,7 +209,7 @@ async function startCamera() {
 function showCount(text: string) { $('#countdown-number').textContent = text; pop('#countdown-number'); }
 function beginCountdown() {
   $('#start-button').setAttribute('disabled', 'true');
-  setPhase('countdown', 'ジャンプの準備！', 'カウントが0になったらスタート'); let count = 3; $('#timer').textContent = String(ROUND_SECONDS); $('#timer-ring').style.setProperty('--progress', '360deg'); showCount(String(count)); window.clearInterval(state.countdownTimer);
+  setPhase('countdown', 'ジャンプの準備！', 'カウントが0になったらスタート'); let count = 3; showCount(String(count)); window.clearInterval(state.countdownTimer);
   state.countdownTimer = window.setInterval(() => { count -= 1; showCount(count > 0 ? String(count) : 'GO!'); if (count <= 0) { window.clearInterval(state.countdownTimer); window.setTimeout(beginRound, 550); } }, 800);
 }
 function beginRound() { state.roundStartedAt = performance.now(); $('#start-text').textContent = 'プレイ中'; $('#score-note').textContent = 'もっと高く！'; $('#demo-jump-button').hidden = state.mode !== 'demo'; setPhase('playing', '手を上にのばそう', '15秒間、何度でもジャンプ！'); render(); }
@@ -243,7 +237,7 @@ function waitForNextPlayer() {
 function finishRound() {
   if (state.phase !== 'playing') return;
   const score = Math.round(state.bestReach); setPhase('finished', 'チャレンジ終了！', score > 0 ? `記録は ${score} cm` : 'もう一度チャレンジしよう');
-  $('#timer').textContent = '0'; $('#timer-ring').classList.remove('hurry'); $('#score-note').textContent = score > 0 ? 'ナイスジャンプ！' : 'もう一度挑戦しよう'; $('#demo-jump-button').hidden = true; showResult(score); renderRanking();
+  $('#score-note').textContent = score > 0 ? 'ナイスジャンプ！' : 'もう一度挑戦しよう'; $('#demo-jump-button').hidden = true; showResult(score); renderRanking();
   if (state.mode === 'camera') state.restartTimer = window.setTimeout(waitForNextPlayer, 4500);
   else { $('#start-button').hidden = false; $('#start-button').removeAttribute('disabled'); $('#start-text').textContent = 'もう一度'; }
 }

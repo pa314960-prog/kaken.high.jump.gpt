@@ -21,7 +21,6 @@ body.theme-light .app-shell { background: var(--bg); }
 .theme-light .topbar { background: #ffffff; box-shadow: 0 1px 0 var(--line); }
 .theme-light .icon-button { background: #fff; }
 .theme-light .icon-button:hover { background: #ff5a1f0d; }
-.theme-light .system-state i { box-shadow: 0 0 0 4px #ff5a1f22; }
 
 /* wall */
 .theme-light .play-field {
@@ -70,10 +69,6 @@ body.theme-light[data-phase='finished'] .result { background: radial-gradient(ci
 
 /* score panel */
 .theme-light .score-panel { background: linear-gradient(180deg, #ffffff, #f2f4fa); }
-.theme-light .phase-chip { background: #ff5a1f12; }
-body.theme-light[data-phase='finished'] .phase-chip { color: #fff; }
-.theme-light .timer-ring { background: radial-gradient(circle at center, #fff 60%, transparent 61.5%), conic-gradient(var(--lime) var(--progress), #0d143316 0); }
-.theme-light .timer-ring.hurry { background: radial-gradient(circle at center, #fff 60%, transparent 61.5%), conic-gradient(#e6194b var(--progress), #0d143316 0); }
 .theme-light .score-card {
   border-color: #ff5a1f40;
   background: radial-gradient(ellipse at 100% 0%, #ff5a1f1c, transparent 60%), #fff;
