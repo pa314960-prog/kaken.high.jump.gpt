@@ -1,6 +1,7 @@
 import { FilesetResolver, PoseLandmarker, type NormalizedLandmark } from '@mediapipe/tasks-vision';
 import './style.css';
 import './fit.css';
+import './portrait.css';
 
 type Mode = 'camera' | 'demo';
 type Phase = 'ready' | 'calibrating' | 'countdown' | 'playing' | 'finished';
@@ -22,6 +23,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <div class="top-actions">
         <span class="system-state"><i></i><b id="system-state">準備OK</b></span>
         <button id="settings-button" class="icon-button" type="button">設定</button>
+        <button id="layout-button" class="icon-button" type="button" aria-pressed="false">縦画面</button>
         <button id="fullscreen-button" class="icon-button" type="button">全画面</button>
       </div>
     </header>
@@ -171,13 +173,22 @@ function stopCamera() { state.stream?.getTracks().forEach((track) => track.stop(
 function resetAfterError(title: string, message: string) { stopCamera(); window.clearInterval(state.countdownTimer); setPhase('ready', title, message); $('#start-button').removeAttribute('disabled'); $('#start-text').textContent = 'もう一度'; showToast(message); }
 function finishRound() { if (state.phase !== 'playing') return; setPhase('finished', 'チャレンジ終了！', state.bestReach > 0 ? `記録は ${Math.round(state.bestReach)} cm` : 'もう一度チャレンジしよう'); stopCamera(); $('#timer').textContent = '0'; $('#score-note').textContent = state.bestReach > 0 ? 'ナイスジャンプ！' : 'もう一度挑戦しよう'; $('#demo-jump-button').hidden = true; $('#start-button').removeAttribute('disabled'); $('#start-text').textContent = 'もう一度'; if (state.bestReach > 0) saveScore(state.bestReach); renderRanking(); }
 function openSettings(open: boolean) { $('#settings-drawer').classList.toggle('open', open); $('#settings-drawer').setAttribute('aria-hidden', String(!open)); $('#settings-backdrop').hidden = !open; }
+function setLayout(portrait: boolean) {
+  $('.app-shell').classList.toggle('portrait', portrait);
+  document.body.classList.toggle('portrait-mode', portrait);
+  $('#layout-button').textContent = portrait ? '横画面' : '縦画面';
+  $('#layout-button').setAttribute('aria-pressed', String(portrait));
+  localStorage.setItem('high-jump-layout-v1', portrait ? 'portrait' : 'landscape');
+}
 
 document.querySelectorAll<HTMLButtonElement>('.mode').forEach((button) => button.addEventListener('click', () => { if (['playing', 'calibrating', 'countdown'].includes(state.phase)) return; state.mode = button.dataset.mode as Mode; document.querySelectorAll('.mode').forEach((element) => element.classList.toggle('active', element === button)); $('#camera-preview').classList.toggle('demo', state.mode === 'demo'); setPhase('ready', '手を上にのばそう', state.mode === 'camera' ? '立つ位置を合わせたら、スタートを押してね' : 'スタート後、ジャンプボタンかスペースキーを押してね'); $('#start-text').textContent = 'スタート'; }));
 $('#start-button').addEventListener('click', () => { if (state.phase === 'playing') return; openSettings(false); if (state.mode === 'camera') void startCamera(); else startDemo(); });
 $('#demo-jump-button').addEventListener('click', demoJump);
 document.addEventListener('keydown', (event) => { if (event.code === 'Space' && state.mode === 'demo' && state.phase === 'playing' && !(event.target instanceof HTMLInputElement)) { event.preventDefault(); demoJump(); } });
 $('#settings-button').addEventListener('click', () => openSettings(true)); $('#settings-close').addEventListener('click', () => openSettings(false)); $('#settings-backdrop').addEventListener('click', () => openSettings(false));
+$('#layout-button').addEventListener('click', () => setLayout(!$('.app-shell').classList.contains('portrait')));
 $('#fullscreen-button').addEventListener('click', async () => { try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); else await document.exitFullscreen(); } catch { showToast('全画面表示を開始できませんでした'); } });
 $('#clear-scores').addEventListener('click', () => { localStorage.removeItem(SCORE_KEY); renderRanking(); showToast('ランキングを消去しました'); });
 window.addEventListener('beforeunload', stopCamera);
+setLayout(localStorage.getItem('high-jump-layout-v1') === 'portrait');
 renderRuler(); renderRanking(); setPhase('ready', '手を上にのばそう', '立つ位置を合わせたら、スタートを押してね'); setInterval(render, 80);
