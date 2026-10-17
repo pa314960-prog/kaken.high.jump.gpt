@@ -231,7 +231,6 @@ function setTheme(light: boolean) {
   $('#theme-button').textContent = light ? 'ダーク' : 'ライト';
   $('#theme-button').setAttribute('aria-pressed', String(light));
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#ffffff' : '#060918');
-  localStorage.setItem('high-jump-theme-v1', light ? 'light' : 'dark');
 }
 
 document.querySelectorAll<HTMLButtonElement>('.mode').forEach((button) => button.addEventListener('click', () => { if (['playing', 'calibrating', 'countdown'].includes(state.phase)) return; state.mode = button.dataset.mode as Mode; document.querySelectorAll('.mode').forEach((element) => element.classList.toggle('active', element === button)); $('#camera-preview').classList.toggle('demo', state.mode === 'demo'); setPhase('ready', '手を上にのばそう', state.mode === 'camera' ? '立つ位置を合わせたら、スタートを押してね' : 'スタート後、ジャンプボタンかスペースキーを押してね'); $('#start-text').textContent = 'スタート'; }));
@@ -240,11 +239,11 @@ $('#demo-jump-button').addEventListener('click', demoJump);
 $('#result').addEventListener('click', () => { if (state.phase === 'finished') setPhase('ready', '手を上にのばそう', '次の人、どうぞ！'); });
 document.addEventListener('keydown', (event) => { if (event.code === 'Space' && state.mode === 'demo' && state.phase === 'playing' && !(event.target instanceof HTMLInputElement)) { event.preventDefault(); demoJump(); } });
 $('#settings-button').addEventListener('click', () => openSettings(true)); $('#settings-close').addEventListener('click', () => openSettings(false)); $('#settings-backdrop').addEventListener('click', () => openSettings(false));
-$('#theme-button').addEventListener('click', () => setTheme(!document.body.classList.contains('theme-light')));
+$('#theme-button').addEventListener('click', () => { const light = !document.body.classList.contains('theme-light'); setTheme(light); localStorage.setItem('high-jump-theme-v2', light ? 'light' : 'dark'); });
 $('#layout-button').addEventListener('click', () => setLayout(!$('.app-shell').classList.contains('portrait')));
 $('#fullscreen-button').addEventListener('click', async () => { try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); else await document.exitFullscreen(); } catch { showToast('全画面表示を開始できませんでした'); } });
 $('#clear-scores').addEventListener('click', () => { localStorage.removeItem(SCORE_KEY); renderRanking(); showToast('ランキングを消去しました'); });
 window.addEventListener('beforeunload', stopCamera);
 setLayout(localStorage.getItem('high-jump-layout-v1') === 'portrait');
-setTheme(localStorage.getItem('high-jump-theme-v1') === 'light');
+setTheme(localStorage.getItem('high-jump-theme-v2') !== 'dark');
 renderRuler(); renderRanking(); setPhase('ready', '手を上にのばそう', '立つ位置を合わせたら、スタートを押してね'); setInterval(render, 80);
