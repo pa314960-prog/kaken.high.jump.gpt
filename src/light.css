@@ -50,14 +50,11 @@ body.theme-light .app-shell { background: var(--bg); }
 .theme-light .reach-line b { color: #fff; box-shadow: 0 6px 18px #ff5a1f55; }
 .theme-light .mark-line span { color: #fff; }
 
-/* title & steps */
+/* title */
 .theme-light .challenge-label { background: #fff; border-color: #ff5a1f66; }
 .theme-light h1 { text-shadow: 0 2px 0 #fff, 0 4px 24px #ffffffcc; }
 .theme-light .title-block p { background: #ffffffd9; color: #4b5578; }
 body.theme-light[data-phase='playing'] h1 { text-shadow: 0 2px 0 #fff; }
-.theme-light .step { background: #ffffff; box-shadow: 0 14px 30px #0d14331a; }
-.theme-light .step svg { fill: #2a3358; }
-.theme-light .step:last-child { border-color: #ff5a1f88; box-shadow: 0 0 0 1px #ff5a1f33, 0 14px 30px #ff5a1f22; }
 .theme-light .jump-zone { background: radial-gradient(ellipse at center, #ff5a1f22, #ff5a1f06 70%); box-shadow: 0 0 22px #ff5a1f33, inset 0 0 18px #ff5a1f22; }
 
 /* overlays */

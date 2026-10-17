@@ -237,7 +237,7 @@ body[data-phase='playing'] .system-state i { background: var(--coral); box-shado
 .peak-line span, .peak-line b { bottom: auto; top: 4px; }
 .best-line { color: var(--gold); }
 
-/* ---------- title & steps ---------- */
+/* ---------- title ---------- */
 .title-block {
   position: absolute;
   z-index: 7;
@@ -278,56 +278,6 @@ h1 {
 body[data-phase='playing'] .title-block, body[data-phase='calibrating'] .title-block { top: auto; bottom: 22%; }
 body[data-phase='playing'] h1 { color: var(--lime); text-shadow: 0 0 30px var(--lime-glow); }
 body[data-phase='calibrating'] h1 { color: var(--cyan); }
-
-.steps {
-  position: absolute;
-  z-index: 5;
-  top: 37%;
-  left: 120px;
-  right: 40px;
-  display: flex;
-  justify-content: center;
-  gap: clamp(10px, 1.6vw, 26px);
-  transition: opacity .3s, transform .3s;
-}
-.step {
-  position: relative;
-  width: clamp(104px, 12vw, 180px);
-  aspect-ratio: 5 / 6;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 1px solid var(--line-2);
-  border-radius: 18px;
-  background: linear-gradient(180deg, #151c44ee, #0b1030ee);
-  box-shadow: 0 20px 40px #0008;
-}
-.step svg { width: 46%; height: 50%; fill: #c9cff0; }
-.step b { font-size: clamp(13px, 1.3vw, 19px); font-weight: 900; }
-.step-number {
-  position: absolute;
-  top: 10px;
-  left: 12px;
-  font: 900 15px var(--num);
-  letter-spacing: .1em;
-  color: var(--muted);
-}
-.step:last-child { border-color: #d4ff3a88; box-shadow: 0 0 0 1px #d4ff3a33, 0 0 40px #d4ff3a22, 0 20px 40px #0008; }
-.step:last-child svg { fill: var(--lime); }
-.step:last-child .step-number { color: var(--lime); }
-.step + .step::before {
-  content: '';
-  position: absolute;
-  left: calc(-1 * clamp(10px, 1.6vw, 26px) / 2 - 4px);
-  top: 50%;
-  width: 8px; height: 8px;
-  border-top: 2px solid var(--lime);
-  border-right: 2px solid var(--lime);
-  transform: translateY(-50%) rotate(45deg);
-}
-body:not([data-phase='ready']) .steps { opacity: 0; transform: translateY(14px); pointer-events: none; }
 
 /* ---------- jump zone ---------- */
 .jump-zone {
@@ -668,8 +618,7 @@ body[data-phase='playing'] .start-button:not([hidden]) { display: none; }
   .reach-line, .mark-line, .floor-line { left: 48px; right: 12px; }
   .landmark { right: 12px; }
   .landmark::before { width: 24px; }
-  .title-block, .steps { left: 64px; right: 14px; }
-  .step { width: 30%; }
+  .title-block { left: 64px; right: 14px; }
   .jump-zone { width: 64%; }
   .camera-preview { display: none; }
 }

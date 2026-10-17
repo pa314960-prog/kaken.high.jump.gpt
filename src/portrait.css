@@ -43,12 +43,6 @@ body.portrait-mode { background: #020410; }
 .portrait h1 { margin: 8px 0 6px; font-size: clamp(24px, 4vh, 38px); }
 .portrait .title-block p { font-size: 11px; }
 
-.portrait .steps { top: 33%; left: 56px; right: 12px; gap: 8px; }
-.portrait .step { width: 30%; border-radius: 12px; }
-.portrait .step b { font-size: 11px; }
-.portrait .step-number { top: 6px; left: 8px; font-size: 11px; }
-.portrait .step + .step::before { left: -8px; width: 6px; height: 6px; }
-
 .portrait .jump-zone { width: 62%; left: 54%; height: 6%; min-height: 36px; bottom: 2.5%; }
 .portrait .jump-zone strong { font-size: 13px; }
 .portrait .footprints i { width: 8px; height: 13px; }

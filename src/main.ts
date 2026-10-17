@@ -18,9 +18,6 @@ const LANDMARKS = [
   { cm: 280, label: 'すごい！' },
 ];
 
-const personStanding = `<svg viewBox="0 0 80 100" aria-hidden="true"><circle cx="40" cy="16" r="10"/><path d="M29 31h22l5 34H45v29H35V65H24z"/></svg>`;
-const personReady = `<svg viewBox="0 0 80 100" aria-hidden="true"><circle cx="49" cy="20" r="10"/><path d="m34 34 20 5-4 24-18-3-13 28-9-5 17-35zM48 60l18 25-8 7-23-28z"/></svg>`;
-const personJump = `<svg viewBox="0 0 80 100" aria-hidden="true"><circle cx="43" cy="25" r="10"/><path d="m34 39 19 3-2 28-20-2zM48 43 64 8l8 4-13 38zM36 66 21 91l-8-5 15-28zM48 67l16 22-8 6-19-27z"/></svg>`;
 const handIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 11h4.5v10h5V11H19z"/></svg>`;
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
@@ -47,11 +44,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <div class="floor-line"></div>
         </div>
         <div class="title-block"><span class="challenge-label">JUMP &amp; REACH</span><h1 id="main-title">手を上にのばそう</h1><p id="main-message">立つ位置を合わせたら、スタートを押してね</p></div>
-        <div class="steps" aria-label="遊び方">
-          <div class="step"><span class="step-number">01</span>${personStanding}<b>立つ</b></div>
-          <div class="step"><span class="step-number">02</span>${personReady}<b>かまえる</b></div>
-          <div class="step"><span class="step-number">03</span>${personJump}<b>ジャンプ</b></div>
-        </div>
         <div class="jump-zone"><span class="footprints"><i></i><i></i></span><strong>ここに立つ</strong></div>
         <div class="countdown" id="countdown" aria-hidden="true"><b id="countdown-number">3</b></div>
         <div class="result" id="result" aria-live="polite">
