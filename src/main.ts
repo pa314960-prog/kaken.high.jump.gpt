@@ -4,7 +4,7 @@ import './portrait.css';
 import './light.css';
 
 type Mode = 'camera' | 'demo';
-type Phase = 'ready' | 'calibrating' | 'countdown' | 'playing' | 'finished';
+type Phase = 'ready' | 'waiting' | 'calibrating' | 'countdown' | 'playing' | 'finished';
 
 const ROUND_SECONDS = 15;
 const MAX_HEIGHT_CM = 300;
@@ -23,7 +23,6 @@ const handIcon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 1
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand"><span class="brand-mark">${handIcon}</span><div><strong>ジャンプ！</strong><small>HIGH REACH CHALLENGE</small></div></div>
       <div class="top-actions">
         <span class="system-state"><i></i><b id="system-state">準備OK</b></span>
         <button id="settings-button" class="icon-button" type="button">設定</button>
@@ -43,7 +42,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <div class="reach-line" id="reach-line"><span class="hand">${handIcon}</span><b id="reach-line-value">-- cm</b></div>
           <div class="floor-line"></div>
         </div>
-        <div class="title-block"><span class="challenge-label">JUMP &amp; REACH</span><h1 id="main-title">手を上にのばそう</h1><p id="main-message">立つ位置を合わせたら、スタートを押してね</p></div>
+        <div class="title-block"><span class="challenge-label">JUMP &amp; REACH</span><h1 id="main-title">人を待っています</h1><p id="main-message">全身が映る位置に立つと自動で始まります</p></div>
         <div class="countdown" id="countdown" aria-hidden="true"><b id="countdown-number">3</b></div>
         <div class="result" id="result" aria-live="polite">
           <span class="result-label" id="result-label">RESULT</span>
@@ -58,7 +57,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <section class="best-card"><span>この端末の最高記録</span><div><strong id="best-score">---</strong><small>cm</small></div></section>
         <section class="ranking-card"><header><span>ランキング</span><small>TOP 5</small></header><ol id="ranking"></ol></section>
         <div class="panel-actions">
-          <button id="start-button" class="start-button" type="button"><span id="start-text">スタート</span><b>▶</b></button>
+          <button id="start-button" class="start-button" type="button" hidden><span id="start-text">カメラを開始</span><b>▶</b></button>
           <button id="demo-jump-button" class="demo-jump-button" type="button" hidden>ジャンプ！<small>SPACE</small></button>
         </div>
       </aside>
@@ -82,7 +81,8 @@ const state = {
   mode: 'camera' as Mode, phase: 'ready' as Phase, pose: null as PoseLandmarker | null, stream: null as MediaStream | null,
   startAt: 0, roundStartedAt: 0, calibration: [] as { foot: number; body: number; hand: number }[], baselineFoot: 0,
   bodyPixels: 0, reachPixels: 0, bestReach: 0, liveReach: 0, jumps: 0, airborne: false, lastVideoTime: -1,
-  lastDetection: 0, demoJump: null as { started: number; height: number } | null, countdownTimer: 0, shownBest: 0,
+  lastDetection: 0, demoJump: null as { started: number; height: number } | null, countdownTimer: 0, restartTimer: 0, shownBest: 0,
+  presenceFrames: 0, missingFrames: 0, awaitingExit: false,
 };
 
 function numeric(selector: string, fallback: number): number {
@@ -107,9 +107,9 @@ function renderRanking() {
 }
 function setPhase(phase: Phase, title: string, message: string) {
   state.phase = phase;
-  $('#phase-chip').textContent = phase === 'ready' ? 'READY' : phase === 'calibrating' ? 'CALIBRATION' : phase === 'countdown' ? 'GET READY' : phase === 'playing' ? 'JUMP!' : 'FINISH';
+  $('#phase-chip').textContent = phase === 'ready' ? 'READY' : phase === 'waiting' ? 'AUTO READY' : phase === 'calibrating' ? 'CALIBRATION' : phase === 'countdown' ? 'GET READY' : phase === 'playing' ? 'JUMP!' : 'FINISH';
   $('#main-title').textContent = title; $('#main-message').textContent = message;
-  $('#system-state').textContent = phase === 'playing' ? '計測中' : phase === 'calibrating' ? '調整中' : '準備OK';
+  $('#system-state').textContent = phase === 'playing' ? '計測中' : phase === 'calibrating' ? '調整中' : phase === 'waiting' ? '自動待機' : '準備OK';
   document.body.dataset.phase = phase;
 }
 function setReachLine(value: number, visible: boolean) {
@@ -144,8 +144,32 @@ function drawPose(points: NormalizedLandmark[]) {
   canvas.width = video.videoWidth; canvas.height = video.videoHeight; context.clearRect(0, 0, canvas.width, canvas.height); context.fillStyle = '#d4ff3a'; context.strokeStyle = '#070b1a'; context.lineWidth = 3;
   for (const index of [0, 15, 16, 19, 20, 27, 28]) { const point = points[index]; if (!validPoint(point, .4)) continue; context.beginPath(); context.arc(point.x * canvas.width, point.y * canvas.height, index >= 15 && index <= 20 ? 7 : 5, 0, Math.PI * 2); context.fill(); context.stroke(); }
 }
+function beginCalibration() {
+  resetRound(); state.liveReach = 0; state.calibration = []; state.startAt = performance.now(); state.presenceFrames = 0;
+  setPhase('calibrating', '手を上げて、そのまま', '全身を映して3秒間止まってね');
+}
+function handleMissingPerson() {
+  if (state.phase !== 'waiting') return;
+  state.presenceFrames = 0;
+  if (state.awaitingExit) {
+    state.missingFrames += 1;
+    if (state.missingFrames >= 10) {
+      state.awaitingExit = false; state.missingFrames = 0;
+      setPhase('waiting', '次の人、どうぞ！', '全身が映る位置に立つと自動で始まります');
+    }
+  }
+}
 function processPose(points: NormalizedLandmark[]) {
-  drawPose(points); const measurement = measure(points); if (!measurement) { $('#camera-state').textContent = '全身を映す'; return; } $('#camera-state').textContent = 'TRACKING';
+  drawPose(points); const measurement = measure(points); if (!measurement) { $('#camera-state').textContent = '全身を映す'; handleMissingPerson(); return; } $('#camera-state').textContent = 'TRACKING';
+  if (state.phase === 'waiting') {
+    state.missingFrames = 0;
+    if ($('#settings-drawer').classList.contains('open')) { state.presenceFrames = 0; return; }
+    if (state.awaitingExit) return;
+    state.presenceFrames += 1;
+    $('#main-message').textContent = `認識中… ${Math.min(100, Math.round(state.presenceFrames / 10 * 100))}%`;
+    if (state.presenceFrames >= 10) beginCalibration();
+    return;
+  }
   if (state.phase === 'calibrating') {
     state.calibration.push(measurement);
     if (state.calibration.length >= 35 && performance.now() - state.startAt >= 2600) {
@@ -167,20 +191,27 @@ function processPose(points: NormalizedLandmark[]) {
 }
 async function cameraLoop() {
   if (!state.stream) return; requestAnimationFrame(cameraLoop);
-  if (state.phase === 'calibrating' && performance.now() - state.startAt > 14000) { resetAfterError('調整できませんでした', '全身と上げた手が映る位置で、もう一度試してください'); return; }
+  if (state.phase === 'calibrating' && performance.now() - state.startAt > 14000) {
+    state.calibration = []; state.presenceFrames = 0;
+    setPhase('waiting', '人を待っています', '全身と上げた手が映る位置に立ってください');
+    return;
+  }
   if (!state.pose || video.readyState < 2) return; const now = performance.now(); if (now - state.lastDetection < 60 || video.currentTime === state.lastVideoTime) return; state.lastDetection = now; state.lastVideoTime = video.currentTime;
-  try { const result = state.pose.detectForVideo(video, now); if (result.landmarks[0]) processPose(result.landmarks[0]); else { context.clearRect(0, 0, canvas.width, canvas.height); $('#camera-state').textContent = '人を探しています'; } }
+  try { const result = state.pose.detectForVideo(video, now); if (result.landmarks[0]) processPose(result.landmarks[0]); else { context.clearRect(0, 0, canvas.width, canvas.height); $('#camera-state').textContent = '人を探しています'; handleMissingPerson(); } }
   catch (error) { console.error(error); resetAfterError('計測エラー', 'ページを再読み込みして試してください'); }
 }
 function showToast(message: string) { $('#toast').textContent = message; $('#toast').classList.add('show'); window.setTimeout(() => $('#toast').classList.remove('show'), 3500); }
 function resetRound() { state.bestReach = 0; state.shownBest = 0; state.jumps = 0; state.airborne = false; $('#score-note').textContent = '最高到達点を測ります'; $('#timer').textContent = String(ROUND_SECONDS); $('#timer-ring').style.setProperty('--progress', '360deg'); $('#timer-ring').classList.remove('hurry'); }
 async function startCamera() {
-  resetRound(); state.liveReach = 0; $('#start-button').setAttribute('disabled', 'true'); setPhase('calibrating', '手を上げて、そのまま', '全身を映して3秒間止まってね'); $('#start-text').textContent = '調整中';
+  if (state.stream) return;
+  resetRound(); state.liveReach = 0; state.presenceFrames = 0; state.missingFrames = 0; state.awaitingExit = false;
+  $('#start-button').hidden = true; $('#start-button').setAttribute('disabled', 'true');
+  setPhase('waiting', 'カメラを準備しています', 'カメラの使用を許可してください');
   try {
     if (!navigator.mediaDevices?.getUserMedia) throw new Error('カメラを使うにはHTTPSまたはlocalhostで開いてください');
     state.stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } }); video.srcObject = state.stream; await video.play(); $('#camera-preview').classList.add('on');
     if (!state.pose) { const vision = await FilesetResolver.forVisionTasks(WASM_URL); try { state.pose = await PoseLandmarker.createFromOptions(vision, { baseOptions: { modelAssetPath: MODEL_URL, delegate: 'GPU' }, runningMode: 'VIDEO', numPoses: 1 }); } catch { state.pose = await PoseLandmarker.createFromOptions(vision, { baseOptions: { modelAssetPath: MODEL_URL, delegate: 'CPU' }, runningMode: 'VIDEO', numPoses: 1 }); } }
-    state.calibration = []; state.startAt = performance.now(); requestAnimationFrame(cameraLoop);
+    $('#start-button').removeAttribute('disabled'); setPhase('waiting', '人を待っています', '全身が映る位置に立つと自動で始まります'); requestAnimationFrame(cameraLoop);
   } catch (error) { resetAfterError('カメラを開始できません', error instanceof Error ? error.message : 'カメラの許可を確認してください'); }
 }
 function showCount(text: string) { $('#countdown-number').textContent = text; pop('#countdown-number'); }
@@ -196,7 +227,7 @@ function demoJump() {
   const animate = () => { if (!state.demoJump || state.phase !== 'playing') return; const progress = Math.min(1, (performance.now() - state.demoJump.started) / 720); state.liveReach = numeric('#standing-reach', 190) + state.demoJump.height * Math.sin(progress * Math.PI); state.bestReach = Math.max(state.bestReach, state.liveReach); $('#score-note').textContent = state.liveReach >= state.bestReach - 1 ? '記録更新！' : 'もっと高く！'; if (progress < 1) requestAnimationFrame(animate); else { state.liveReach = numeric('#standing-reach', 190); state.demoJump = null; } }; requestAnimationFrame(animate);
 }
 function stopCamera() { state.stream?.getTracks().forEach((track) => track.stop()); state.stream = null; video.srcObject = null; $('#camera-preview').classList.remove('on'); $('#camera-state').textContent = 'OFF'; }
-function resetAfterError(title: string, message: string) { stopCamera(); window.clearInterval(state.countdownTimer); setPhase('ready', title, message); $('#start-button').removeAttribute('disabled'); $('#start-text').textContent = 'もう一度'; showToast(message); }
+function resetAfterError(title: string, message: string) { stopCamera(); window.clearInterval(state.countdownTimer); window.clearTimeout(state.restartTimer); setPhase('ready', title, message); $('#start-button').hidden = false; $('#start-button').removeAttribute('disabled'); $('#start-text').textContent = 'カメラを開始'; showToast(message); }
 function showResult(score: number) {
   const previousBest = scores()[0] ?? 0;
   if (score > 0) saveScore(score);
@@ -207,7 +238,17 @@ function showResult(score: number) {
   $('#result-score').textContent = score > 0 ? String(score) : '---';
   $('#result-message').textContent = score <= 0 ? 'もう一度チャレンジしよう' : isRecord ? 'この端末の最高記録を更新！' : rank > 0 && rank <= 5 ? `ランキング ${rank}位！` : 'ナイスジャンプ！';
 }
-function finishRound() { if (state.phase !== 'playing') return; const score = Math.round(state.bestReach); setPhase('finished', 'チャレンジ終了！', score > 0 ? `記録は ${score} cm` : 'もう一度チャレンジしよう'); stopCamera(); $('#timer').textContent = '0'; $('#timer-ring').classList.remove('hurry'); $('#score-note').textContent = score > 0 ? 'ナイスジャンプ！' : 'もう一度挑戦しよう'; $('#demo-jump-button').hidden = true; $('#start-button').removeAttribute('disabled'); $('#start-text').textContent = 'もう一度'; showResult(score); renderRanking(); }
+function waitForNextPlayer() {
+  resetRound(); state.liveReach = 0; state.awaitingExit = true; state.presenceFrames = 0; state.missingFrames = 0;
+  setPhase('waiting', '次の人を待っています', '一度画面の外へ出てください');
+}
+function finishRound() {
+  if (state.phase !== 'playing') return;
+  const score = Math.round(state.bestReach); setPhase('finished', 'チャレンジ終了！', score > 0 ? `記録は ${score} cm` : 'もう一度チャレンジしよう');
+  $('#timer').textContent = '0'; $('#timer-ring').classList.remove('hurry'); $('#score-note').textContent = score > 0 ? 'ナイスジャンプ！' : 'もう一度挑戦しよう'; $('#demo-jump-button').hidden = true; showResult(score); renderRanking();
+  if (state.mode === 'camera') state.restartTimer = window.setTimeout(waitForNextPlayer, 4500);
+  else { $('#start-button').hidden = false; $('#start-button').removeAttribute('disabled'); $('#start-text').textContent = 'もう一度'; }
+}
 function openSettings(open: boolean) { $('#settings-drawer').classList.toggle('open', open); $('#settings-drawer').setAttribute('aria-hidden', String(!open)); $('#settings-backdrop').hidden = !open; }
 function setLayout(portrait: boolean) {
   $('.app-shell').classList.toggle('portrait', portrait);
@@ -224,10 +265,16 @@ function setTheme(light: boolean) {
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', light ? '#ffffff' : '#060918');
 }
 
-document.querySelectorAll<HTMLButtonElement>('.mode').forEach((button) => button.addEventListener('click', () => { if (['playing', 'calibrating', 'countdown'].includes(state.phase)) return; state.mode = button.dataset.mode as Mode; document.querySelectorAll('.mode').forEach((element) => element.classList.toggle('active', element === button)); $('#camera-preview').classList.toggle('demo', state.mode === 'demo'); setPhase('ready', '手を上にのばそう', state.mode === 'camera' ? '立つ位置を合わせたら、スタートを押してね' : 'スタート後、ジャンプボタンかスペースキーを押してね'); $('#start-text').textContent = 'スタート'; }));
+document.querySelectorAll<HTMLButtonElement>('.mode').forEach((button) => button.addEventListener('click', () => {
+  if (['playing', 'calibrating', 'countdown'].includes(state.phase)) return;
+  state.mode = button.dataset.mode as Mode; document.querySelectorAll('.mode').forEach((element) => element.classList.toggle('active', element === button)); $('#camera-preview').classList.toggle('demo', state.mode === 'demo');
+  window.clearTimeout(state.restartTimer);
+  if (state.mode === 'camera') { $('#start-button').hidden = true; void startCamera(); }
+  else { stopCamera(); setPhase('ready', 'デモモード', 'スタート後、ジャンプボタンかスペースキーを押してね'); $('#start-button').hidden = false; $('#start-text').textContent = 'スタート'; }
+}));
 $('#start-button').addEventListener('click', () => { if (state.phase === 'playing') return; openSettings(false); if (state.mode === 'camera') void startCamera(); else startDemo(); });
 $('#demo-jump-button').addEventListener('click', demoJump);
-$('#result').addEventListener('click', () => { if (state.phase === 'finished') setPhase('ready', '手を上にのばそう', '次の人、どうぞ！'); });
+$('#result').addEventListener('click', () => { if (state.phase === 'finished' && state.mode === 'demo') setPhase('ready', 'デモモード', 'スタートを押してね'); });
 document.addEventListener('keydown', (event) => { if (event.code === 'Space' && state.mode === 'demo' && state.phase === 'playing' && !(event.target instanceof HTMLInputElement)) { event.preventDefault(); demoJump(); } });
 $('#settings-button').addEventListener('click', () => openSettings(true)); $('#settings-close').addEventListener('click', () => openSettings(false)); $('#settings-backdrop').addEventListener('click', () => openSettings(false));
 $('#theme-button').addEventListener('click', () => { const light = !document.body.classList.contains('theme-light'); setTheme(light); localStorage.setItem('high-jump-theme-v2', light ? 'light' : 'dark'); });
@@ -237,4 +284,4 @@ $('#clear-scores').addEventListener('click', () => { localStorage.removeItem(SCO
 window.addEventListener('beforeunload', stopCamera);
 setLayout(localStorage.getItem('high-jump-layout-v1') === 'portrait');
 setTheme(localStorage.getItem('high-jump-theme-v2') !== 'dark');
-renderRuler(); renderRanking(); setPhase('ready', '手を上にのばそう', '立つ位置を合わせたら、スタートを押してね'); setInterval(render, 80);
+renderRuler(); renderRanking(); setPhase('waiting', '人を待っています', '全身が映る位置に立つと自動で始まります'); setInterval(render, 80); void startCamera();

@@ -10,11 +10,7 @@ body.portrait-mode { background: #020410; }
 }
 
 .portrait .topbar { padding: 0 12px; }
-.portrait .brand { gap: 8px; }
-.portrait .brand-mark { width: 28px; height: 28px; border-radius: 8px; }
-.portrait .brand-mark svg { width: 17px; }
-.portrait .brand strong { font-size: 17px; }
-.portrait .brand small, .portrait .system-state { display: none; }
+.portrait .system-state { display: none; }
 .portrait .top-actions { gap: 4px; }
 .portrait .icon-button { padding: 6px 9px; font-size: 10px; }
 

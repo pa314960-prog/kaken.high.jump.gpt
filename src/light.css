@@ -19,8 +19,6 @@ body.theme-light.portrait-mode { background: #d9dee9; }
 body.theme-light .app-shell { background: var(--bg); }
 
 .theme-light .topbar { background: #ffffff; box-shadow: 0 1px 0 var(--line); }
-.theme-light .brand-mark { box-shadow: 0 6px 16px #ff5a1f44; }
-.theme-light .brand-mark svg { fill: #fff; }
 .theme-light .icon-button { background: #fff; }
 .theme-light .icon-button:hover { background: #ff5a1f0d; }
 .theme-light .system-state i { box-shadow: 0 0 0 4px #ff5a1f22; }
