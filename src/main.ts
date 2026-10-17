@@ -54,7 +54,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <aside class="score-panel">
         <div class="panel-head"><div class="phase-chip" id="phase-chip">READY</div><section class="timer-card"><p id="jump-count">ジャンプ 0回</p><div class="timer-ring" id="timer-ring"><strong id="timer">${ROUND_SECONDS}</strong><small>秒</small></div></section></div>
         <section class="score-card" id="score-card"><span>今回の記録</span><div class="score-value"><strong id="current-score">---</strong><small>cm</small></div><div class="meter"><i id="score-meter"></i><em id="meter-best"></em></div><p id="score-note">最高到達点を測ります</p></section>
-        <section class="best-card"><span>この端末の最高記録</span><div><strong id="best-score">---</strong><small>cm</small></div></section>
         <section class="ranking-card"><header><span>ランキング</span><small>TOP 5</small></header><ol id="ranking"></ol></section>
         <div class="panel-actions">
           <button id="start-button" class="start-button" type="button" hidden><span id="start-text">カメラを開始</span><b>▶</b></button>
@@ -101,7 +100,6 @@ function renderRuler() {
 function renderRanking() {
   const list = scores().slice(0, 5);
   $('#ranking').innerHTML = [0, 1, 2, 3, 4].map((index) => `<li class="${list[index] ? '' : 'empty'}"><span>${index + 1}</span><i style="--w:${list[index] ? list[index] / MAX_HEIGHT_CM * 100 : 0}%"></i><b>${list[index] ?? '---'}</b><small>cm</small></li>`).join('');
-  $('#best-score').textContent = list[0] ? String(list[0]) : '---';
   $('#best-line').style.bottom = heightPercent(list[0] ?? 0); $('#best-line').classList.toggle('visible', !!list[0]); $('#best-line-value').textContent = list[0] ? `${list[0]}` : '--';
   $('#meter-best').style.left = heightPercent(list[0] ?? 0); $('#meter-best').hidden = !list[0];
 }
@@ -236,7 +234,7 @@ function showResult(score: number) {
   $('#result').classList.toggle('record', isRecord);
   $('#result-label').textContent = isRecord ? 'NEW RECORD!' : 'RESULT';
   $('#result-score').textContent = score > 0 ? String(score) : '---';
-  $('#result-message').textContent = score <= 0 ? 'もう一度チャレンジしよう' : isRecord ? 'この端末の最高記録を更新！' : rank > 0 && rank <= 5 ? `ランキング ${rank}位！` : 'ナイスジャンプ！';
+  $('#result-message').textContent = score <= 0 ? 'もう一度チャレンジしよう' : isRecord ? '最高記録を更新！' : rank > 0 && rank <= 5 ? `ランキング ${rank}位！` : 'ナイスジャンプ！';
 }
 function waitForNextPlayer() {
   resetRound(); state.liveReach = 0; state.awaitingExit = true; state.presenceFrames = 0; state.missingFrames = 0;

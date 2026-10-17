@@ -79,12 +79,11 @@ body.theme-light[data-phase='finished'] .phase-chip { color: #fff; }
   background: radial-gradient(ellipse at 100% 0%, #ff5a1f1c, transparent 60%), #fff;
   box-shadow: 0 14px 30px #0d143314;
 }
-.theme-light .score-card > span, .theme-light .best-card > span, .theme-light .score-card p { color: #4b5578; }
+.theme-light .score-card > span, .theme-light .score-card p { color: #4b5578; }
 .theme-light .score-value strong { text-shadow: 0 6px 24px #ff5a1f33; }
-.theme-light .score-value small, .theme-light .best-card small { color: var(--muted); }
+.theme-light .score-value small { color: var(--muted); }
 .theme-light .meter { background: #0d143312; }
 .theme-light .meter i { background: linear-gradient(90deg, #ffb21f, var(--lime)); box-shadow: none; }
-.theme-light .best-card { border-color: #e0940044; background: #fff8e8; }
 .theme-light .ranking-card { background: #fff; box-shadow: 0 10px 24px #0d14330f; }
 .theme-light .ranking-card li i { background: linear-gradient(90deg, #0d143310, #0d143340) 0 0 / var(--w) 100% no-repeat; }
 .theme-light .ranking-card li:first-child i { background: linear-gradient(90deg, #e0940022, var(--gold)) 0 0 / var(--w) 100% no-repeat; }

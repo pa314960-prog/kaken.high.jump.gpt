@@ -66,8 +66,6 @@ body.portrait-mode { background: #020410; }
 .portrait .score-card { grid-area: score; min-width: 0; padding: 10px 12px; border-radius: 14px; }
 .portrait .ranking-card { grid-area: rank; min-width: 0; padding: 8px 10px; }
 .portrait .panel-actions { grid-area: actions; margin: 0; }
-.portrait .best-card { display: none; }
-
 .portrait .phase-chip { padding: 4px 10px; font-size: 11px; }
 .portrait .timer-card { gap: 8px; }
 .portrait .timer-card p { font-size: 10px; }

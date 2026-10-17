@@ -392,7 +392,7 @@ body[data-phase='finished'] .phase-chip { background: var(--gold); border-color:
     linear-gradient(180deg, #141b45, #0d1236);
   box-shadow: 0 0 40px #d4ff3a14 inset;
 }
-.score-card > span, .best-card > span { font-size: 13px; font-weight: 800; color: #b3bade; }
+.score-card > span { font-size: 13px; font-weight: 800; color: #b3bade; }
 .score-value { display: flex; align-items: baseline; gap: 8px; line-height: .9; margin-top: 2px; }
 .score-value strong {
   font: 900 clamp(80px, 7.6vw, 128px) var(--num);
@@ -412,19 +412,6 @@ body[data-phase='finished'] .phase-chip { background: var(--gold); border-color:
 .meter em { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
 .score-card p { margin: 10px 0 0; font-size: 13px; font-weight: 800; color: #c9cff0; }
 .score-card.pop { animation: card-pop .45s ease-out; }
-
-.best-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-radius: 14px;
-  border: 1px solid #ffc53d40;
-  background: #ffc53d0d;
-}
-.best-card div { display: flex; align-items: baseline; gap: 4px; }
-.best-card strong { font: 900 34px var(--num); color: var(--gold); line-height: 1; }
-.best-card small { font: 800 15px var(--num); color: #c9cff0; }
 
 .ranking-card {
   min-height: 0;
